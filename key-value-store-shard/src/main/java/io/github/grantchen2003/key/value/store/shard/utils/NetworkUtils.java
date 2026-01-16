@@ -14,4 +14,9 @@ public class NetworkUtils {
 
         return new InetSocketAddress(host, port);
     }
+
+    public static String toHostPort(InetSocketAddress address) {
+        if (address == null) throw new IllegalArgumentException("Address cannot be null");
+        return address.getHostString() + ":" + address.getPort();
+    }
 }
