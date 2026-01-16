@@ -6,6 +6,10 @@ import io.github.grantchen2003.key.value.store.shard.utils.NetworkUtils;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Optional;
 
 public class SlaveNode extends Node {
@@ -38,7 +42,22 @@ public class SlaveNode extends Node {
 
     private void registerWithMaster() {
         final URI shardUri = URI.create("http://" + NetworkUtils.toHostPort(masterAddress) + "/slave?address=" + NetworkUtils.toHostPort(address));
-        System.out.println("Sending PUT request to master at " + shardUri);
-        // TODO: implement PUT request to /slave?address=...
+        System.out.println("Sending POST request to master at " + shardUri);
+
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(shardUri)
+                .timeout(Duration.ofSeconds(3))
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        try (final HttpClient client = HttpClient.newHttpClient()) {
+            final HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
+
+            if (response.statusCode() != 200) {
+                throw new IllegalStateException("Failed to register slave. HTTP " + response.statusCode());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error registering slave with master", e);
+        }
     }
 }

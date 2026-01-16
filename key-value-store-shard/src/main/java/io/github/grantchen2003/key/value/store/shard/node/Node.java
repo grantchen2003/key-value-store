@@ -14,7 +14,7 @@ public abstract class Node {
     protected final Store store;
     protected final HttpServer server;
 
-    public Node(int port, Store store) throws IOException {
+    protected Node(int port, Store store) throws IOException {
         this.store = store;
         this.server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/get", new LoggingHandler(new GetHandler(store)));

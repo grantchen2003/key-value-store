@@ -1,11 +1,20 @@
 version: "3.9"
 
 services:
-  key-value-store-shard-1:
+  key-value-store-shard-master:
     build: .
     ports:
       - "8080:8080"
-  key-value-store-shard-2:
+    command:
+      - "--role=MASTER"
+      - "--masterAddress=0.0.0.0:8080"
+      - "--address=0.0.0.0:8080"
+
+  key-value-store-shard-replica:
     build: .
     ports:
       - "8081:8080"
+    command:
+      - "--role=SLAVE"
+      - "--masterAddress=0.0.0.0:8080"
+      - "--address=0.0.0.0:8081"
