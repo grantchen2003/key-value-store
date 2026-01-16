@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  key-value-store-shard-1:
+    build: .
+    ports:
+      - "8080:8080"
+  key-value-store-shard-2:
+    build: .
+    ports:
+      - "8081:8080"
