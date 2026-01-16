@@ -6,5 +6,5 @@ public interface Store {
     int size();
     Optional<String> getValue(String key);
     void put(String key, String value);
-    Optional<String> removeKey(String key);
+    Optional<String> remove(String key);
 }

@@ -20,7 +20,7 @@ public class LoggingHandler implements HttpHandler {
         System.out.println(exchange.getRequestMethod() + " " + exchange.getRequestURI());
 
         // Log headers
-        exchange.getRequestHeaders().forEach((k, v) -> System.out.println(k + ": " + v));
+//        exchange.getRequestHeaders().forEach((k, v) -> System.out.println(k + ": " + v));
 
         // Log body if present (read safely)
         InputStream is = exchange.getRequestBody();
