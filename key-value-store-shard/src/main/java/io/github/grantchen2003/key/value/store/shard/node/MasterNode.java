@@ -35,6 +35,7 @@ public class MasterNode extends Node {
     public Optional<String> remove(String key) {
         Optional<String> valueOpt = store.remove(key);
 
+        // TODO: make this concurrent, learn more about java concurrency first
         for (final InetSocketAddress slaveAddress : slaveAddresses) {
             replicateRemove(slaveAddress, key);
         }
