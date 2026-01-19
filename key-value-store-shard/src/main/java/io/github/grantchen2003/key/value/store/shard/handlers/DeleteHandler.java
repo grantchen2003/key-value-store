@@ -3,10 +3,11 @@ package io.github.grantchen2003.key.value.store.shard.handlers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import io.github.grantchen2003.key.value.store.shard.node.Node;
-import io.github.grantchen2003.key.value.store.shard.store.Store;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 public class DeleteHandler implements HttpHandler {
@@ -22,14 +23,13 @@ public class DeleteHandler implements HttpHandler {
             return;
         }
 
-        final String query = exchange.getRequestURI().getQuery();
-
-        if (!query.startsWith("key=")) {
+        final Optional<String> keyOpt = extractKey(exchange.getRequestURI());
+        if (keyOpt.isEmpty()) {
             exchange.sendResponseHeaders(400, -1);
             return;
         }
 
-        final String key = query.substring(4);
+        final String key = keyOpt.get();
 
         final Optional<String> value = node.remove(key);
 
@@ -39,8 +39,22 @@ public class DeleteHandler implements HttpHandler {
         }
 
         exchange.sendResponseHeaders(200, value.get().getBytes().length);
-        final OutputStream os = exchange.getResponseBody();
-        os.write(value.get().getBytes());
-        os.close();
+        exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+        try (final OutputStream os = exchange.getResponseBody()) {
+            os.write(value.get().getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    private Optional<String> extractKey(URI requestUri) {
+        if (requestUri == null) {
+            return Optional.empty();
+        }
+
+        final String query = requestUri.getQuery();
+        if (query == null || !query.startsWith("key=")) {
+            return Optional.empty();
+        }
+
+        return Optional.of(query.substring("key=".length()));
     }
 }

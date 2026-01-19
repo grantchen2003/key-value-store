@@ -3,9 +3,9 @@ package io.github.grantchen2003.key.value.store.shard.node;
 import com.sun.net.httpserver.HttpServer;
 import io.github.grantchen2003.key.value.store.shard.handlers.*;
 import io.github.grantchen2003.key.value.store.shard.store.Store;
+import io.github.grantchen2003.key.value.store.shard.transaction.TransactionLog;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -36,9 +36,9 @@ public abstract class Node {
     public abstract void put(String key, String value);
     public abstract Optional<String> remove(String key);
 
-    public static Node create(Role role, InetSocketAddress address, int port, Store store, InetSocketAddress masterAddress) throws IOException {
+    public static Node create(Role role, InetSocketAddress address, int port, InetSocketAddress masterAddress, Store store, TransactionLog transactionLog) throws IOException {
         return switch (role) {
-            case MASTER -> new MasterNode(port, store);
+            case MASTER -> new MasterNode(port, store, transactionLog);
             case SLAVE -> new SlaveNode(address, port, store, masterAddress);
         };
     }

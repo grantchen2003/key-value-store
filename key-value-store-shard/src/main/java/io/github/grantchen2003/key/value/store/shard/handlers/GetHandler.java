@@ -38,9 +38,9 @@ public class GetHandler implements HttpHandler {
         }
 
         exchange.sendResponseHeaders(200, value.get().getBytes().length);
-        final OutputStream os = exchange.getResponseBody();
-        os.write(value.get().getBytes());
-        os.close();
+        try (final OutputStream os = exchange.getResponseBody()) {
+            os.write(value.get().getBytes());
+        }
     }
 
     private Optional<String> extractKey(URI requestUri) {
