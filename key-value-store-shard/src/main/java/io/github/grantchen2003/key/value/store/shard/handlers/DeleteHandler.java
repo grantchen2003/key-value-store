@@ -2,7 +2,7 @@ package io.github.grantchen2003.key.value.store.shard.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import io.github.grantchen2003.key.value.store.shard.node.Node;
+import io.github.grantchen2003.key.value.store.shard.server.Server;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,9 +11,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 public class DeleteHandler implements HttpHandler {
-    final Node node;
-    public DeleteHandler(Node node) {
-        this.node = node;
+    final Server server;
+    public DeleteHandler(Server server) {
+        this.server = server;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class DeleteHandler implements HttpHandler {
 
         final String key = keyOpt.get();
 
-        final Optional<String> value = node.remove(key);
+        final Optional<String> value = server.remove(key);
 
         if (value.isEmpty()) {
             exchange.sendResponseHeaders(404, -1);

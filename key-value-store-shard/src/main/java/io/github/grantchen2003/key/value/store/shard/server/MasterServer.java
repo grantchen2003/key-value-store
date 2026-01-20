@@ -1,4 +1,4 @@
-package io.github.grantchen2003.key.value.store.shard.node;
+package io.github.grantchen2003.key.value.store.shard.server;
 
 import io.github.grantchen2003.key.value.store.shard.handlers.LoggingHandler;
 import io.github.grantchen2003.key.value.store.shard.handlers.TransactionLogHandler;
@@ -15,11 +15,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MasterNode extends Node {
+public class MasterServer extends Server {
     private final TransactionLog transactionLog;
     private final Set<InetSocketAddress> slaveAddresses = ConcurrentHashMap.newKeySet();
 
-    public MasterNode(int port, Store store, TransactionLog transactionLog) throws IOException {
+    public MasterServer(int port, Store store, TransactionLog transactionLog) throws IOException {
         super(port, store);
         server.createContext("/slave", new LoggingHandler(new SlaveHandler(this)));
         server.createContext("/transaction-log", new LoggingHandler(new TransactionLogHandler(this)));

@@ -1,6 +1,8 @@
-package io.github.grantchen2003.key.value.store.shard.node;
+package io.github.grantchen2003.key.value.store.shard.server;
 
 import com.sun.net.httpserver.HttpServer;
+import io.github.grantchen2003.key.value.store.shard.config.Role;
+import io.github.grantchen2003.key.value.store.shard.config.ShardConfig;
 import io.github.grantchen2003.key.value.store.shard.handlers.*;
 import io.github.grantchen2003.key.value.store.shard.store.Store;
 import io.github.grantchen2003.key.value.store.shard.transaction.TransactionLog;
@@ -10,11 +12,11 @@ import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 
-public abstract class Node {
+public abstract class Server {
     protected final Store store;
     protected final HttpServer server;
 
-    protected Node(int port, Store store) throws IOException {
+    protected Server(int port, Store store) throws IOException {
         this.store = store;
         this.server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/get", new LoggingHandler(new GetHandler(store)));
@@ -36,10 +38,10 @@ public abstract class Node {
     public abstract void put(String key, String value);
     public abstract Optional<String> remove(String key);
 
-    public static Node create(Role role, InetSocketAddress address, int port, InetSocketAddress masterAddress, Store store, TransactionLog transactionLog) throws IOException {
-        return switch (role) {
-            case MASTER -> new MasterNode(port, store, transactionLog);
-            case SLAVE -> new SlaveNode(address, port, store, masterAddress);
+    public static Server create(int port, ShardConfig shardConfig, Store store, TransactionLog transactionLog) throws IOException {
+        return switch (shardConfig.role()) {
+            case MASTER -> new MasterServer(port, store, transactionLog);
+            case SLAVE -> new SlaveServer(shardConfig.address(), port, store, shardConfig.masterAddress());
         };
     }
 }

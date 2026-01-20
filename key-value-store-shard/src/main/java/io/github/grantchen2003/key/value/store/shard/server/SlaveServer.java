@@ -1,4 +1,4 @@
-package io.github.grantchen2003.key.value.store.shard.node;
+package io.github.grantchen2003.key.value.store.shard.server;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
@@ -17,11 +17,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
 
-public class SlaveNode extends Node {
+public class SlaveServer extends Server {
     private final InetSocketAddress address;
     private final InetSocketAddress masterAddress;
 
-    public SlaveNode(InetSocketAddress address, int port, Store store, InetSocketAddress masterAddress) throws IOException {
+    public SlaveServer(InetSocketAddress address, int port, Store store, InetSocketAddress masterAddress) throws IOException {
         super(port, store);
         this.address = address;
         this.masterAddress = masterAddress;

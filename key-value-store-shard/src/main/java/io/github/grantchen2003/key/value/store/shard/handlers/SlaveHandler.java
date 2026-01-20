@@ -2,7 +2,7 @@ package io.github.grantchen2003.key.value.store.shard.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import io.github.grantchen2003.key.value.store.shard.node.MasterNode;
+import io.github.grantchen2003.key.value.store.shard.server.MasterServer;
 import io.github.grantchen2003.key.value.store.shard.utils.NetworkUtils;
 
 import java.io.IOException;
@@ -11,9 +11,9 @@ import java.net.URI;
 import java.util.Optional;
 
 public class SlaveHandler implements HttpHandler {
-    final MasterNode masterNode;
+    final MasterServer masterNode;
 
-    public SlaveHandler(MasterNode masterNode) {
+    public SlaveHandler(MasterServer masterNode) {
         this.masterNode = masterNode;
     }
 
