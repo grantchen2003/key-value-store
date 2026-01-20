@@ -14,11 +14,11 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-public class ReplicationLogHandler implements HttpHandler {
+public class TransactionLogHandler implements HttpHandler {
     private final Gson gson = new Gson();
     private final MasterNode node;
 
-    public ReplicationLogHandler(MasterNode node) {
+    public TransactionLogHandler(MasterNode node) {
         this.node = node;
     }
 

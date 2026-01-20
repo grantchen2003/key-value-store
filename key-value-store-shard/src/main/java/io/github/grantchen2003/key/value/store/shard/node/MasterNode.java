@@ -1,7 +1,7 @@
 package io.github.grantchen2003.key.value.store.shard.node;
 
 import io.github.grantchen2003.key.value.store.shard.handlers.LoggingHandler;
-import io.github.grantchen2003.key.value.store.shard.handlers.ReplicationLogHandler;
+import io.github.grantchen2003.key.value.store.shard.handlers.TransactionLogHandler;
 import io.github.grantchen2003.key.value.store.shard.handlers.SlaveHandler;
 import io.github.grantchen2003.key.value.store.shard.store.Store;
 import io.github.grantchen2003.key.value.store.shard.transaction.Transaction;
@@ -22,7 +22,7 @@ public class MasterNode extends Node {
     public MasterNode(int port, Store store, TransactionLog transactionLog) throws IOException {
         super(port, store);
         server.createContext("/slave", new LoggingHandler(new SlaveHandler(this)));
-        server.createContext("/replication-log", new LoggingHandler(new ReplicationLogHandler(this)));
+        server.createContext("/transaction-log", new LoggingHandler(new TransactionLogHandler(this)));
         this.transactionLog = transactionLog;
     }
 

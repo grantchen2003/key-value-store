@@ -72,7 +72,7 @@ public class SlaveNode extends Node {
 
     // TODO: KEEP SYNCING WITH POLLING UNTIL LAST APPLIED TX TO SLAVE IS THE SAME AS MASTER. THEN ONLY RELY ON MASTER WRITE PROPAGATIONS TO BE IN SYNC
     private void syncWithMaster() {
-        final URI shardUri = URI.create("http://" + NetworkUtils.toHostPort(masterAddress) + "/replication-log?startOffset=0");
+        final URI shardUri = URI.create("http://" + NetworkUtils.toHostPort(masterAddress) + "/transaction-log?startOffset=0");
         System.out.println("Sending POST request to register with master at " + shardUri);
 
         final HttpRequest request = HttpRequest.newBuilder()
