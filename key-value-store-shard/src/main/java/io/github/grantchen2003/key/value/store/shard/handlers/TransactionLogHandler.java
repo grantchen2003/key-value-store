@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import io.github.grantchen2003.key.value.store.shard.server.MasterServer;
+import io.github.grantchen2003.key.value.store.shard.service.MasterService;
 import io.github.grantchen2003.key.value.store.shard.transaction.Transaction;
 
 import java.io.IOException;
@@ -16,10 +16,10 @@ import java.util.Optional;
 
 public class TransactionLogHandler implements HttpHandler {
     private final Gson gson = new Gson();
-    private final MasterServer node;
+    private final MasterService masterService;
 
-    public TransactionLogHandler(MasterServer node) {
-        this.node = node;
+    public TransactionLogHandler(MasterService masterService) {
+        this.masterService = masterService;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class TransactionLogHandler implements HttpHandler {
 
         final long startOffset = startOffsetOpt.get();
 
-        final List<Transaction> transactions = node.getTransactionsStartingFrom(startOffset);
+        final List<Transaction> transactions = masterService.getTransactionsStartingFrom(startOffset);
 
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(200, 0);

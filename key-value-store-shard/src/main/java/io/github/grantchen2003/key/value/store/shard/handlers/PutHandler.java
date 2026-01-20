@@ -2,7 +2,7 @@ package io.github.grantchen2003.key.value.store.shard.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import io.github.grantchen2003.key.value.store.shard.server.Server;
+import io.github.grantchen2003.key.value.store.shard.service.Service;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,10 +11,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 public class PutHandler implements HttpHandler {
-    final Server server;
+    final Service service;
 
-    public PutHandler(Server server) {
-        this.server = server;
+    public PutHandler(Service service) {
+        this.service = service;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class PutHandler implements HttpHandler {
             return;
         }
 
-        server.put(key, value);
+        service.put(key, value);
 
         exchange.sendResponseHeaders(200, -1);
     }

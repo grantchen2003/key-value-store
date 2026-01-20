@@ -10,11 +10,13 @@ services:
       - "--masterAddress=0.0.0.0:8080"
       - "--address=0.0.0.0:8080"
 
-  key-value-store-shard-replica:
+  key-value-store-shard-slave:
     build: .
     ports:
       - "8081:8080"
-    command:
-      - "--role=SLAVE"
-      - "--masterAddress=0.0.0.0:8080"
-      - "--address=0.0.0.0:8081"
+    depends_on:
+      - key-value-store-shard-master
+    entrypoint:
+      - sh
+      - -c
+      - sleep 3 && java -jar app.jar --role=SLAVE --masterAddress=key-value-store-shard-master:8080 --address=0.0.0.0:8080

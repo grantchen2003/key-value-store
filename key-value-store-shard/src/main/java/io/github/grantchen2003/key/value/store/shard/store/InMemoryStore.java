@@ -7,11 +7,6 @@ public class InMemoryStore implements Store {
     final ConcurrentHashMap<String, String> data = new ConcurrentHashMap<>();
 
     @Override
-    public int size() {
-        return data.size();
-    }
-
-    @Override
     public Optional<String> getValue(String key) {
         return Optional.ofNullable(data.get(key));
     }

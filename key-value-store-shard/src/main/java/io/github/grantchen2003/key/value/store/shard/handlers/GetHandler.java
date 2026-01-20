@@ -2,7 +2,7 @@ package io.github.grantchen2003.key.value.store.shard.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import io.github.grantchen2003.key.value.store.shard.store.Store;
+import io.github.grantchen2003.key.value.store.shard.service.Service;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,10 +10,10 @@ import java.net.URI;
 import java.util.Optional;
 
 public class GetHandler implements HttpHandler {
-    final Store store;
+    final Service service;
 
-    public GetHandler(Store store) {
-        this.store = store;
+    public GetHandler(Service service) {
+        this.service = service;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class GetHandler implements HttpHandler {
 
         final String key = keyOpt.get();
 
-        final Optional<String> value = store.getValue(key);
+        final Optional<String> value = service.get(key);
         if (value.isEmpty()) {
             exchange.sendResponseHeaders(404, -1);
             return;

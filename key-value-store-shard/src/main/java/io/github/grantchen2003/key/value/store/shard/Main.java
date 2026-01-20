@@ -12,12 +12,10 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        final ShardConfig shardConfig = ConfigParser.parseArgs(args);
-
         final int port = 8080;
-
-        final TransactionLog transactionLog = new InMemoryTransactionLog();
+        final ShardConfig shardConfig = ConfigParser.parseArgs(args);
         final Store store = new InMemoryStore();
+        final TransactionLog transactionLog = new InMemoryTransactionLog();
 
         final Server server = Server.create(port, shardConfig, store, transactionLog);
         server.start();
