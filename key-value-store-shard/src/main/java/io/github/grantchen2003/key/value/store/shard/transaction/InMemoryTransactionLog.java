@@ -11,10 +11,11 @@ public class InMemoryTransactionLog implements TransactionLog {
     private final AtomicLong currentOffset = new AtomicLong(0);
 
     @Override
-    public synchronized void append(TransactionType txType, String key, String value) {
+    public synchronized long append(TransactionType txType, String key, String value) {
         final long offset = currentOffset.incrementAndGet();
         final Transaction transaction = new Transaction(offset, txType, key, value);
         queue.add(transaction);
+        return offset;
     }
 
     @Override
@@ -26,17 +27,5 @@ public class InMemoryTransactionLog implements TransactionLog {
             }
         }
         return transactions;
-    }
-
-    @Override
-    public synchronized void removeTransactionsUpToAndIncluding(long upToOffset) {
-        while (!queue.isEmpty() && queue.peek().offset() <= upToOffset) {
-            queue.poll();
-        }
-    }
-
-    @Override
-    public long getCurrentOffset() {
-        return currentOffset.get();
     }
 }

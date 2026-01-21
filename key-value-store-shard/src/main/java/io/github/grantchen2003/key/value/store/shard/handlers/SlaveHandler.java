@@ -11,7 +11,7 @@ import java.net.URI;
 import java.util.Optional;
 
 public class SlaveHandler implements HttpHandler {
-    final MasterService masterService;
+    private final MasterService masterService;
 
     public SlaveHandler(MasterService masterService) {
         this.masterService = masterService;

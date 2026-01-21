@@ -1,8 +1,8 @@
-package io.github.grantchen2003.key.value.store.shard.handlers;
+package io.github.grantchen2003.key.value.store.shard.handlers.internal;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import io.github.grantchen2003.key.value.store.shard.service.MasterService;
+import io.github.grantchen2003.key.value.store.shard.service.SlaveService;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,10 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 public class DeleteHandler implements HttpHandler {
-    private final MasterService masterService;
+    private final SlaveService slaveService;
 
-    public DeleteHandler(MasterService masterService) {
-        this.masterService = masterService;
+    public DeleteHandler(SlaveService slaveService) {
+        this.slaveService = slaveService;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class DeleteHandler implements HttpHandler {
 
         final String key = keyOpt.get();
 
-        final Optional<String> value = masterService.remove(key);
+        final Optional<String> value = slaveService.remove(key);
 
         if (value.isEmpty()) {
             exchange.sendResponseHeaders(404, -1);

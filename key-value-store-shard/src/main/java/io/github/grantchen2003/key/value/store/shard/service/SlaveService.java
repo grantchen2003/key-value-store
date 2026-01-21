@@ -16,22 +16,32 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
 
-public class SlaveService extends Service {
+public class SlaveService {
+    private final HttpClient client = HttpClient.newHttpClient();
+    private final Store store;
     private final InetSocketAddress address;
     private final InetSocketAddress masterAddress;
+    private long lastAppliedTxOffset = 0;
 
     public SlaveService(Store store, InetSocketAddress address, InetSocketAddress masterAddress) {
-        super(store);
+        this.store = store;
         this.address = address;
         this.masterAddress = masterAddress;
     }
 
-    @Override
-    public void put(String key, String value) {
-        store.put(key, value);
+    public Optional<String> get(String key) {
+        return store.getValue(key);
     }
 
-    @Override
+    public void put(Transaction tx) {
+        if (tx.offset() == lastAppliedTxOffset + 1) {
+            store.put(tx.key(), tx.value());
+            lastAppliedTxOffset++;
+        } else if (tx.offset() > lastAppliedTxOffset + 1) {
+            // slave is missing [lastAppliedTxOffset, tx.offset() - 1]
+        }
+    }
+
     public Optional<String> remove(String key) {
         return store.remove(key);
     }
@@ -55,9 +65,8 @@ public class SlaveService extends Service {
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
 
-        try (final HttpClient client = HttpClient.newHttpClient()) {
+        try {
             final HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
-
             if (response.statusCode() != 200) {
                 throw new IllegalStateException("Failed to register slave. HTTP " + response.statusCode());
             }
@@ -68,22 +77,24 @@ public class SlaveService extends Service {
 
     // TODO: KEEP SYNCING WITH POLLING UNTIL LAST APPLIED TX TO SLAVE IS THE SAME AS MASTER. THEN ONLY RELY ON MASTER WRITE PROPAGATIONS TO BE IN SYNC
     private void syncWithMaster() {
-        final URI shardUri = URI.create("http://" + NetworkUtils.toHostPort(masterAddress) + "/transaction-log?startOffset=0");
-        System.out.println("Sending POST request to register with master at " + shardUri);
+        final URI masterUri = URI.create("http://" + NetworkUtils.toHostPort(masterAddress) + "/transaction-log?startOffset=" + lastAppliedTxOffset);
+        System.out.println("Sending POST request to register with master at " + masterUri);
 
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(shardUri)
+                .uri(masterUri)
                 .GET()
                 .build();
 
-        try (final HttpClient client = HttpClient.newHttpClient()) {
+        try {
             final HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
             if (response.statusCode() != 200) {
                 throw new RuntimeException("Failed to sync with master, status code: " + response.statusCode());
             }
 
-            try (final InputStreamReader reader = new InputStreamReader(response.body());
-                 final JsonReader jsonReader = new JsonReader(reader)) {
+            try (
+                    final InputStreamReader reader = new InputStreamReader(response.body());
+                    final JsonReader jsonReader = new JsonReader(reader)
+            ) {
                 final Gson gson = new Gson();
                 jsonReader.beginArray();
 
@@ -104,5 +115,6 @@ public class SlaveService extends Service {
             case TransactionType.PUT -> store.put(tx.key(), tx.value());
             case TransactionType.DELETE -> store.remove(tx.key());
         }
+        lastAppliedTxOffset++;
     }
 }

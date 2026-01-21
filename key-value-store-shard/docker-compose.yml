@@ -19,4 +19,4 @@ services:
     entrypoint:
       - sh
       - -c
-      - sleep 3 && java -jar app.jar --role=SLAVE --masterAddress=key-value-store-shard-master:8080 --address=0.0.0.0:8080
+      - sleep 3 && java -jar app.jar --role=SLAVE --masterAddress=key-value-store-shard-master:8080 --address=key-value-store-shard-slave:8080

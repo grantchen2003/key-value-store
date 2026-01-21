@@ -41,13 +41,13 @@ public class TransactionLogHandler implements HttpHandler {
 
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(200, 0);
-        try (OutputStream os = exchange.getResponseBody();
-             OutputStreamWriter osw = new OutputStreamWriter(os);
-             JsonWriter jsonWriter = new JsonWriter(osw)) {
+        try (final OutputStream os = exchange.getResponseBody();
+             final OutputStreamWriter osw = new OutputStreamWriter(os);
+             final JsonWriter jsonWriter = new JsonWriter(osw)) {
 
             jsonWriter.beginArray();
 
-            for (Transaction tx : transactions) {
+            for (final Transaction tx : transactions) {
                 gson.toJson(tx, Transaction.class, jsonWriter);
                 jsonWriter.flush();
             }

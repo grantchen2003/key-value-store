@@ -1,8 +1,10 @@
-package io.github.grantchen2003.key.value.store.shard.handlers;
+package io.github.grantchen2003.key.value.store.shard.handlers.internal;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import io.github.grantchen2003.key.value.store.shard.service.MasterService;
+import io.github.grantchen2003.key.value.store.shard.service.SlaveService;
+import io.github.grantchen2003.key.value.store.shard.transaction.Transaction;
+import io.github.grantchen2003.key.value.store.shard.transaction.TransactionType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,10 +13,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 public class PutHandler implements HttpHandler {
-    private final MasterService masterService;
+    private final SlaveService slaveService;
 
-    public PutHandler(MasterService masterService) {
-        this.masterService = masterService;
+    public PutHandler(SlaveService slaveService) {
+        this.slaveService = slaveService;
     }
 
     @Override
@@ -28,9 +30,11 @@ public class PutHandler implements HttpHandler {
         final String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         final JSONObject jsonObject = new JSONObject(body);
 
+        final long txOffset;
         final String key, value;
 
         try {
+            txOffset = jsonObject.getLong("txOffset");
             key = jsonObject.getString("key");
             value = jsonObject.getString("value");
         } catch (JSONException e) {
@@ -38,7 +42,9 @@ public class PutHandler implements HttpHandler {
             return;
         }
 
-        masterService.put(key, value);
+        final Transaction tx = new Transaction(txOffset, TransactionType.PUT, key, value);
+
+        slaveService.put(tx);
 
         exchange.sendResponseHeaders(200, -1);
     }
