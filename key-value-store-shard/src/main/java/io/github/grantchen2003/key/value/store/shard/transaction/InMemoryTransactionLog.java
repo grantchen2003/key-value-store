@@ -11,18 +11,24 @@ public class InMemoryTransactionLog implements TransactionLog {
     private final AtomicLong currentOffset = new AtomicLong(0);
 
     @Override
-    public synchronized long append(TransactionType txType, String key, String value) {
-        final long offset = currentOffset.incrementAndGet();
-        final Transaction transaction = new Transaction(offset, txType, key, value);
-        queue.add(transaction);
-        return offset;
+    public synchronized long appendPut(String key, String value) {
+        final Transaction tx = new PutTransaction(currentOffset.incrementAndGet(), key, value);
+        queue.add(tx);
+        return tx.offset;
+    }
+
+    @Override
+    public synchronized long appendDelete(String key) {
+        final Transaction tx = new DeleteTransaction(currentOffset.incrementAndGet(), key);
+        queue.add(tx);
+        return tx.offset;
     }
 
     @Override
     public synchronized List<Transaction> getTransactionsStartingFrom(long startOffset) {
         final List<Transaction> transactions = new ArrayList<>();
         for (final Transaction tx: queue) {
-            if (tx.offset() >= startOffset) {
+            if (tx.offset >= startOffset) {
                 transactions.add(tx);
             }
         }

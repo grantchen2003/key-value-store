@@ -3,8 +3,6 @@ package io.github.grantchen2003.key.value.store.shard.handlers.internal;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import io.github.grantchen2003.key.value.store.shard.service.SlaveService;
-import io.github.grantchen2003.key.value.store.shard.transaction.Transaction;
-import io.github.grantchen2003.key.value.store.shard.transaction.TransactionType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,9 +40,7 @@ public class PutHandler implements HttpHandler {
             return;
         }
 
-        final Transaction tx = new Transaction(txOffset, TransactionType.PUT, key, value);
-
-        slaveService.put(tx);
+        slaveService.put(txOffset, key, value);
 
         exchange.sendResponseHeaders(200, -1);
     }

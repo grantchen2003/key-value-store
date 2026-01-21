@@ -5,6 +5,8 @@ import com.google.gson.stream.JsonWriter;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import io.github.grantchen2003.key.value.store.shard.service.MasterService;
+import io.github.grantchen2003.key.value.store.shard.transaction.DeleteTransaction;
+import io.github.grantchen2003.key.value.store.shard.transaction.PutTransaction;
 import io.github.grantchen2003.key.value.store.shard.transaction.Transaction;
 
 import java.io.IOException;
@@ -48,7 +50,20 @@ public class TransactionLogHandler implements HttpHandler {
             jsonWriter.beginArray();
 
             for (final Transaction tx : transactions) {
-                gson.toJson(tx, Transaction.class, jsonWriter);
+                if (tx instanceof PutTransaction putTx) {
+                    jsonWriter.beginObject();
+                    jsonWriter.name("type").value(putTx.type);
+                    jsonWriter.name("offset").value(putTx.offset);
+                    jsonWriter.name("key").value(putTx.key);
+                    jsonWriter.name("value").value(putTx.value);
+                    jsonWriter.endObject();
+                } else if (tx instanceof DeleteTransaction delTx) {
+                    jsonWriter.beginObject();
+                    jsonWriter.name("type").value(delTx.type);
+                    jsonWriter.name("offset").value(delTx.offset);
+                    jsonWriter.name("key").value(delTx.key);
+                    jsonWriter.endObject();
+                }
                 jsonWriter.flush();
             }
 

@@ -3,6 +3,7 @@ package io.github.grantchen2003.key.value.store.shard.transaction;
 import java.util.List;
 
 public interface TransactionLog {
-    long append(TransactionType txType, String key, String value);
+    long appendPut(String key, String value);
+    long appendDelete(String key);
     List<Transaction> getTransactionsStartingFrom(long startOffset);
 }

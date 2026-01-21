@@ -1,3 +1,9 @@
 package io.github.grantchen2003.key.value.store.shard.transaction;
 
-public record Transaction(long offset, TransactionType type, String key, String value) {}
+public abstract class Transaction {
+    public final long offset;
+
+    public Transaction(long offset) {
+        this.offset = offset;
+    }
+}
