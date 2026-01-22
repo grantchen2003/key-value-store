@@ -1,13 +1,27 @@
-This is a distributed key value store.
+# Key-Value Store
 
-Supports GET, PUT, DELETE operations on string-typed keys and string-typed values.
+A distributed key-value store supporting basic operations on string-typed keys and values, with sharding and master-slave replication.
 
-Simple hashing to route key to shard.
+## Features
 
-Each shard is replicated via master slave.
+### Supported Operations
+- **GET**: Retrieve the value associated with a key.  
+- **PUT**: Store or update a value under a key.  
+- **DELETE**: Remove the value associated with a key.  
 
-Arbitrary number of slaves can be added to serve a shard master.
+### Sharding
+- Keys are routed to shards using **simple hashing**.  
+- Each shard manages a subset of the keyspace.  
 
-Reads from master are consistent.
+### Replication
+- Each shard uses **master-slave replication**.  
+- A shard can have **any number of slaves** to improve read availability and fault tolerance.  
+- Writes are handled by the **master** and replicated asynchronously to slaves.  
 
-Reads from slaves are eventually consistent.
+### Consistency
+- **Master reads** are eventually consistent with slave replicas.  
+- Slaves may lag behind the master, depending on replication progress.  
+
+### Scalability
+- New slaves can be added dynamically to handle increased read load.  
+- The system is designed to scale horizontally across multiple shards.  
