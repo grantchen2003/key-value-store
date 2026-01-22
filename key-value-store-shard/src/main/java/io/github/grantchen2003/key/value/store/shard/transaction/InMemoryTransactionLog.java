@@ -23,13 +23,13 @@ public class InMemoryTransactionLog implements TransactionLog {
         queue.add(tx);
         return tx.offset;
     }
-// Need to implement copy constructor for Transaction and do defensive copy
+
     @Override
     public synchronized List<Transaction> getTransactionsStartingFrom(long startOffset) {
         final List<Transaction> transactions = new ArrayList<>();
         for (final Transaction tx: queue) {
             if (tx.offset >= startOffset) {
-                transactions.add(tx);
+                transactions.add(tx.copy());
             }
         }
         return transactions;

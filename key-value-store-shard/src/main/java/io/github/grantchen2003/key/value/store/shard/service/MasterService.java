@@ -27,13 +27,13 @@ public class MasterService {
     public synchronized void put(String key, String value) {
         final long txOffset = transactionLog.appendPut(key, value);
         store.put(key, value);
-        masterWriteReplicator.replicatePutToSlaves(txOffset, key, value);
+        masterWriteReplicator.replicatePutAsync(txOffset, key, value);
     }
 
     public synchronized Optional<String> remove(String key) {
         final long txOffset = transactionLog.appendDelete(key);
         final Optional<String> valueOpt = store.remove(key);
-        masterWriteReplicator.replicateRemoveToSlaves(txOffset, key);
+        masterWriteReplicator.replicateRemoveAsync(txOffset, key);
         return valueOpt;
     }
 

@@ -20,18 +20,21 @@ public class MasterWriteReplicator {
         slaves.add(address);
     }
 
-    public void replicatePutToSlaves(long txOffset, String key, String value) {
+    // TODO: make this async
+    public void replicatePutAsync(long txOffset, String key, String value) {
         for (final InetSocketAddress slave : slaves) {
             sendPut(slave, txOffset, key, value);
         }
     }
 
-    public void replicateRemoveToSlaves(long txOffset, String key) {
+    // TODO: make this async
+    public void replicateRemoveAsync(long txOffset, String key) {
         for (final InetSocketAddress slave : slaves) {
             sendRemove(slave, txOffset, key);
         }
     }
 
+    // TODO: rename
     private void sendPut(InetSocketAddress slaveAddress, long txOffset, String key, String value) {
         final URI slaveUri = URI.create("http://" + NetworkUtils.toHostPort(slaveAddress) + "/internal/put");
         System.out.println("Putting to slave " + slaveUri);
@@ -55,6 +58,7 @@ public class MasterWriteReplicator {
         }
     }
 
+    // TODO: rename
     private void sendRemove(InetSocketAddress slaveAddress, long txOffset, String key) {
         System.out.println("Removing from replica " + slaveAddress);
     }

@@ -1,6 +1,5 @@
 package io.github.grantchen2003.key.value.store.shard.handlers;
 
-import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class TransactionLogHandler implements HttpHandler {
-    private final Gson gson = new Gson();
     private final MasterService masterService;
 
     public TransactionLogHandler(MasterService masterService) {

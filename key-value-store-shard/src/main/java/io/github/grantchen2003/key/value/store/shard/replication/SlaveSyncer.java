@@ -14,8 +14,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Optional;
 
+// TODO: TEST AND PROPERLY IMPLEMENT THE FUNCTIONS, ITS NOT DONE YET
 public class SlaveSyncer {
     private final HttpClient client = HttpClient.newHttpClient();
     private final Store store;
@@ -99,14 +99,21 @@ public class SlaveSyncer {
     }
 
     public void applyPutTransaction(PutTransaction tx) {
-        store.put(tx.key, tx.value);
-        lastAppliedTxOffset++;
+        if (tx.offset + 1 == lastAppliedTxOffset) {
+            store.put(tx.key, tx.value);
+            lastAppliedTxOffset++;
+        } else if (tx.offset + 1 > lastAppliedTxOffset) {
+            syncWithMaster();
+        }
     }
 
-    public Optional<String> applyDeleteTransaction(DeleteTransaction tx) {
-        final Optional<String> deletedValue = store.remove(tx.key);
-        lastAppliedTxOffset++;
-        return deletedValue;
+    public void applyDeleteTransaction(DeleteTransaction tx) {
+        if (tx.offset + 1 == lastAppliedTxOffset) {
+            store.remove(tx.key);
+            lastAppliedTxOffset++;
+        } else if (tx.offset + 1 > lastAppliedTxOffset) {
+            syncWithMaster();
+        }
     }
 
     private void applyTransaction(Transaction tx) {

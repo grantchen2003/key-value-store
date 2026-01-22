@@ -5,9 +5,7 @@ import com.sun.net.httpserver.HttpHandler;
 import io.github.grantchen2003.key.value.store.shard.service.SlaveService;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 public class DeleteHandler implements HttpHandler {
@@ -39,20 +37,9 @@ public class DeleteHandler implements HttpHandler {
         final long txOffset = txOffsetOpt.get();
         final String key = keyOpt.get();
 
+        slaveService.remove(txOffset, key);
 
-//        final Transaction tx = new Transaction(txOffset, TransactionType.DELETE, key);
-        final Optional<String> value = slaveService.remove(txOffset, key);
-
-        if (value.isEmpty()) {
-            exchange.sendResponseHeaders(404, -1);
-            return;
-        }
-
-        exchange.sendResponseHeaders(200, value.get().getBytes().length);
-        exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
-        try (final OutputStream os = exchange.getResponseBody()) {
-            os.write(value.get().getBytes(StandardCharsets.UTF_8));
-        }
+        exchange.sendResponseHeaders(200, -1);
     }
 
     private Optional<String> extractKey(URI requestUri) {
@@ -68,8 +55,8 @@ public class DeleteHandler implements HttpHandler {
         return Optional.of(query.substring("key=".length()));
     }
 
+    //TODO
     private Optional<Long> extractTxOffset(URI requestUri) {
-        //TODO
         return Optional.empty();
     }
 }

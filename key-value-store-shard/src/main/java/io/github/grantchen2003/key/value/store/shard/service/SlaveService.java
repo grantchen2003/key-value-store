@@ -28,9 +28,9 @@ public class SlaveService {
         slaveSyncer.applyPutTransaction(tx);
     }
 
-    public Optional<String> remove(long txOffset, String key) {
+    public void remove(long txOffset, String key) {
         final DeleteTransaction tx = new DeleteTransaction(txOffset, key);
-        return slaveSyncer.applyDeleteTransaction(tx);
+        slaveSyncer.applyDeleteTransaction(tx);
     }
 
     public void start() {
