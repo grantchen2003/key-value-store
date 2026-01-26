@@ -4,7 +4,7 @@ import io.github.grantchen2003.key.value.store.shard.config.ShardConfig;
 import io.github.grantchen2003.key.value.store.shard.replication.write.replicator.AsyncWriteReplicator;
 import io.github.grantchen2003.key.value.store.shard.replication.SlaveRegistrar;
 import io.github.grantchen2003.key.value.store.shard.replication.SlaveSyncer;
-import io.github.grantchen2003.key.value.store.shard.replication.write.replicator.QueuedWriteReplicator;
+import io.github.grantchen2003.key.value.store.shard.replication.write.replicator.QueuedAsyncWriteReplicator;
 import io.github.grantchen2003.key.value.store.shard.service.MasterService;
 import io.github.grantchen2003.key.value.store.shard.service.SlaveService;
 import io.github.grantchen2003.key.value.store.shard.store.InMemoryStore;
@@ -27,7 +27,7 @@ public class ServerFactory {
     private static Server createMasterServer(int port) throws IOException {
         final Store store = new InMemoryStore();
         final TransactionLog transactionLog = new InMemoryTransactionLog();
-        final AsyncWriteReplicator asyncWriteReplicator = new QueuedWriteReplicator();
+        final AsyncWriteReplicator asyncWriteReplicator = new QueuedAsyncWriteReplicator();
         final MasterService masterService = new MasterService(store, transactionLog, asyncWriteReplicator);
         return new MasterServer(port, masterService);
     }

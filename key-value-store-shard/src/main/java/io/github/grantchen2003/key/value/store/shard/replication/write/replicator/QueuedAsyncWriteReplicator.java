@@ -13,12 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class QueuedWriteReplicator implements AsyncWriteReplicator {
+public class QueuedAsyncWriteReplicator implements AsyncWriteReplicator {
     private final Set<InetSocketAddress> slaves = ConcurrentHashMap.newKeySet();
     private final HttpClient client = HttpClient.newHttpClient();
     private final ExecutorService replicationExecutor = Executors.newSingleThreadExecutor(
             r -> {
-                Thread t = new Thread(r, "replication-executor");
+                Thread t = new Thread(r);
                 t.setDaemon(true); // so JVM can exit even if replication tasks are pending
                 return t;
             }
@@ -32,7 +32,7 @@ public class QueuedWriteReplicator implements AsyncWriteReplicator {
     public void replicatePutAsync(long txOffset, String key, String value) {
         replicationExecutor.execute(() -> {
             for (InetSocketAddress slave : slaves) {
-                replicatePutToSlaveAsync(slave, txOffset, key, value);
+                replicatePutToSlave(slave, txOffset, key, value);
             }
         });
     }
@@ -41,12 +41,12 @@ public class QueuedWriteReplicator implements AsyncWriteReplicator {
     public void replicateRemoveAsync(long txOffset, String key) {
         replicationExecutor.execute(() -> {
             for (InetSocketAddress slave : slaves) {
-                replicateRemoveToSlaveAsync(slave, txOffset, key);
+                replicateRemoveToSlave(slave, txOffset, key);
             }
         });
     }
 
-    private void replicatePutToSlaveAsync(InetSocketAddress slaveAddress, long txOffset, String key, String value) {
+    private void replicatePutToSlave(InetSocketAddress slaveAddress, long txOffset, String key, String value) {
         final URI slaveUri = URI.create("http://" + NetworkUtils.toHostPort(slaveAddress) + "/internal/put");
         System.out.println("Putting to slave " + slaveUri);
 
@@ -68,7 +68,7 @@ public class QueuedWriteReplicator implements AsyncWriteReplicator {
                 });
     }
 
-    private void replicateRemoveToSlaveAsync(InetSocketAddress slaveAddress, long txOffset, String key) {
+    private void replicateRemoveToSlave(InetSocketAddress slaveAddress, long txOffset, String key) {
         System.out.println("Removing from slave " + slaveAddress);
     }
 }
