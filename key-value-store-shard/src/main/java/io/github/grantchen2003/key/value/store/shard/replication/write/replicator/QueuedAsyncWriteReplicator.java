@@ -48,7 +48,7 @@ public class QueuedAsyncWriteReplicator implements AsyncWriteReplicator {
 
     private void replicatePutToSlave(InetSocketAddress slaveAddress, long txOffset, String key, String value) {
         final URI slaveUri = URI.create("http://" + NetworkUtils.toHostPort(slaveAddress) + "/internal/put");
-        System.out.println("Putting to slave " + slaveUri);
+        System.out.println("Replicating PUT to slave " + slaveUri);
 
         final JSONObject payload = new JSONObject()
                 .put("txOffset", txOffset)
@@ -63,12 +63,24 @@ public class QueuedAsyncWriteReplicator implements AsyncWriteReplicator {
 
         client.sendAsync(request, HttpResponse.BodyHandlers.discarding())
                 .exceptionally(ex -> {
-                    System.out.println("Replication PUT failed to " + slaveAddress + ": " + ex);
+                    System.out.println("Replicating PUT failed to " + slaveAddress + ": " + ex);
                     return null;
                 });
     }
 
     private void replicateRemoveToSlave(InetSocketAddress slaveAddress, long txOffset, String key) {
-        System.out.println("Removing from slave " + slaveAddress);
+        final URI slaveUri = URI.create("http://" + NetworkUtils.toHostPort(slaveAddress) + "/internal/delete?txOffset=" + txOffset +"&key=" + key);
+        System.out.println("Replicating DELETE to slave " + slaveUri);
+
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(slaveUri)
+                .DELETE()
+                .build();
+
+        client.sendAsync(request, HttpResponse.BodyHandlers.discarding())
+                .exceptionally(ex -> {
+                    System.out.println("Replicating DELETE failed to " + slaveAddress + ": " + ex);
+                    return null;
+                });
     }
 }
