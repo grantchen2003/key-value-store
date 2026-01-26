@@ -21,7 +21,7 @@ public class MasterServer implements Server {
         server.createContext("/get", new LoggingHandler(new GetHandler(masterService)));
         server.createContext("/put", new LoggingHandler(new PutHandler(masterService)));
         server.createContext("/delete", new LoggingHandler(new DeleteHandler(masterService)));
-        server.createContext("/slave", new LoggingHandler(new SlaveHandler(masterService)));
+        server.createContext("/slaves", new LoggingHandler(new SlaveHandler(masterService)));
         server.createContext("/transaction-log", new LoggingHandler(new TransactionLogHandler(masterService)));
 
         final int numCores = Runtime.getRuntime().availableProcessors();

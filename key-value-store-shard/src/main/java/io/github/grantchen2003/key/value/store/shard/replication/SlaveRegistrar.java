@@ -19,7 +19,7 @@ public class SlaveRegistrar {
     }
 
     public void register() {
-        final URI shardUri = URI.create("http://" + NetworkUtils.toHostPort(masterAddress) + "/slave?address=" + NetworkUtils.toHostPort(address));
+        final URI shardUri = URI.create("http://" + NetworkUtils.toHostPort(masterAddress) + "/slaves?address=" + NetworkUtils.toHostPort(address));
         System.out.println("Sending POST request to register with master at " + shardUri);
 
         final HttpRequest request = HttpRequest.newBuilder()
