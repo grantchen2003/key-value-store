@@ -24,4 +24,13 @@ A distributed key-value store supporting basic operations on string-typed keys a
 
 ### Scalability
 - New slaves can be added dynamically to handle increased read load.  
-- The system is designed to scale horizontally across multiple shards.  
+- The system is designed to scale horizontally across multiple shards.
+
+## Assumptions
+This project intentionally makes several simplifying assumptions. These are **not realistic for a production-grade distributed system** and are acknowledged limitations that will be addressed in future iterations.
+
+- **Shard leader (master) never fails**  
+  Each shard is assumed to always have a healthy, available master. Leader election, failover, and split-brain scenarios are not handled.
+
+- **Request router never fails**  
+  The component responsible for routing keys to shards is assumed to be perfectly reliable and always reachable. Fault tolerance and redundancy for routing are out of scope.
