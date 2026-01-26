@@ -27,10 +27,8 @@ public class SlaveSyncer {
         this.masterAddress = masterAddress;
     }
 
-    // TODO: KEEP SYNCING WITH POLLING UNTIL LAST APPLIED TX TO SLAVE IS THE SAME AS MASTER. THEN ONLY RELY ON MASTER WRITE PROPAGATIONS TO BE IN SYNC
     public void syncWithMaster() {
         final URI masterUri = URI.create("http://" + NetworkUtils.toHostPort(masterAddress) + "/transaction-log?startOffset=" + lastAppliedTxOffset);
-        System.out.println("Sending POST request to register with master at " + masterUri);
 
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(masterUri)
@@ -99,19 +97,19 @@ public class SlaveSyncer {
     }
 
     public void applyPutTransaction(PutTransaction tx) {
-        if (tx.offset + 1 == lastAppliedTxOffset) {
+        if (tx.offset == lastAppliedTxOffset + 1) {
             store.put(tx.key, tx.value);
             lastAppliedTxOffset++;
-        } else if (tx.offset + 1 > lastAppliedTxOffset) {
+        } else if (tx.offset > lastAppliedTxOffset + 1) {
             syncWithMaster();
         }
     }
 
     public void applyDeleteTransaction(DeleteTransaction tx) {
-        if (tx.offset + 1 == lastAppliedTxOffset) {
+        if (tx.offset == lastAppliedTxOffset + 1) {
             store.remove(tx.key);
             lastAppliedTxOffset++;
-        } else if (tx.offset + 1 > lastAppliedTxOffset) {
+        } else if (tx.offset > lastAppliedTxOffset + 1) {
             syncWithMaster();
         }
     }

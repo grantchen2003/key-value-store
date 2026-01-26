@@ -10,7 +10,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException {
         final ShardConfig config = ConfigParser.parseArgs(args);
-        final Server server = ServerFactory.createServer(8080, config);
+        final Server server = ServerFactory.createServer(config.address().getPort(), config);
         server.start();
     }
 }
