@@ -1,0 +1,71 @@
+package io.github.grantchen2003.key.value.store.shard.gateway.service;
+
+import io.github.grantchen2003.key.value.store.shard.gateway.utils.NetworkUtils;
+import org.json.JSONObject;
+
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class Service {
+    private final HttpClient client = HttpClient.newHttpClient();
+    private final Set<InetSocketAddress> slaveAddresses = ConcurrentHashMap.newKeySet();
+
+    public void addSlaveAddress(InetSocketAddress slaveAddress) {
+        slaveAddresses.add(slaveAddress);
+    }
+
+    public void replicatePut(long txOffset, String key, String value) {
+        for (final InetSocketAddress slaveAddress : slaveAddresses) {
+            replicatePutToSlave(slaveAddress, txOffset, key, value);
+        }
+    }
+
+    public void replicateDelete(long txOffset, String key) {
+        for (final InetSocketAddress slaveAddress : slaveAddresses) {
+            replicateDeleteToSlave(slaveAddress, txOffset, key);
+        }
+    }
+
+    private void replicatePutToSlave(InetSocketAddress slaveAddress, long txOffset, String key, String value) {
+        final URI slaveUri = URI.create("http://" + NetworkUtils.toHostPort(slaveAddress) + "/internal/put");
+        System.out.println("Replicating PUT to slave " + slaveUri);
+
+        final JSONObject payload = new JSONObject()
+                .put("txOffset", txOffset)
+                .put("key", key)
+                .put("value", value);
+
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(slaveUri)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
+                .build();
+
+        client.sendAsync(request, HttpResponse.BodyHandlers.discarding())
+                .exceptionally(ex -> {
+                    System.out.println("Replicating PUT failed to " + slaveAddress + ": " + ex);
+                    return null;
+                });
+    }
+
+    private void replicateDeleteToSlave(InetSocketAddress slaveAddress, long txOffset, String key) {
+        final URI slaveUri = URI.create("http://" + NetworkUtils.toHostPort(slaveAddress) + "/internal/delete?txOffset=" + txOffset +"&key=" + key);
+        System.out.println("Replicating DELETE to slave " + slaveUri);
+
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(slaveUri)
+                .DELETE()
+                .build();
+
+        client.sendAsync(request, HttpResponse.BodyHandlers.discarding())
+                .exceptionally(ex -> {
+                    System.out.println("Replicating DELETE failed to " + slaveAddress + ": " + ex);
+                    return null;
+                });
+    }
+}
