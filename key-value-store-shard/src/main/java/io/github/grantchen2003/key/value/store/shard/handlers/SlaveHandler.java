@@ -32,7 +32,7 @@ public class SlaveHandler implements HttpHandler {
 
         final InetSocketAddress slaveAddress = slaveAddressOpt.get();
 
-        masterService.addSlaveAddress(slaveAddress);
+        masterService.addSlave(slaveAddress);
 
         exchange.sendResponseHeaders(200, -1);
     }
