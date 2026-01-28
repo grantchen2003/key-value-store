@@ -5,9 +5,12 @@ import io.github.grantchen2003.key.value.store.shard.transaction.TransactionLog;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.ConnectException;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -25,44 +28,69 @@ public class ReplicationStreamer implements Runnable {
         this.txAvailable = txAvailable;
     }
 
-    // TODO: switch to grpc, make slave be grpc server
     @Override
     public void run() {
         System.out.println("STREAMER: Starting replication thread for " + slaveAddress);
 
-        try (final Socket socket = new Socket()) {
-            socket.connect(slaveAddress, 5000);
-            socket.setKeepAlive(true);
+        final URL slaveUrl;
+        try {
+            final URI slaveUri = new URI("http://" + slaveAddress.getHostString() + ":" + slaveAddress.getPort() + "/internal/replicate");
+            slaveUrl = slaveUri.toURL();
+        } catch (MalformedURLException | URISyntaxException e) {
+            System.err.println("STREAMER: Invalid slave address: " + e.getMessage());
+            return;
+        }
 
-            try (final ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
-                System.out.println("STREAMER: Syncing data to " + slaveAddress);
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) slaveUrl.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setChunkedStreamingMode(0);
 
-                while (!Thread.currentThread().isInterrupted() && !socket.isClosed()) {
+            try (final ObjectOutputStream out = new ObjectOutputStream(connection.getOutputStream())) {
+                System.out.println("STREAMER: Syncing data to " + slaveAddress + " via HTTP Stream");
+
+                while (!Thread.currentThread().isInterrupted()) {
                     lock.lock();
                     try {
                         while (lastSentIndex >= transactionLog.size()) {
                             txAvailable.await();
                         }
-
                         for (final Transaction tx : transactionLog.getTransactionsStartingFrom(lastSentIndex + 1)) {
                             out.writeObject(tx);
                             out.flush();
                             lastSentIndex++;
+                            System.out.println("STREAMER: Sent " + this);
                         }
                     } finally {
                         lock.unlock();
                     }
                 }
             }
-        } catch (ConnectException e) {
-            System.err.println("STREAMER: Could not connect to slave at " + slaveAddress + " (Connection Refused)");
-        } catch (IOException e) {
-            System.err.println("STREAMER: Connection error with slave " + slaveAddress + ": " + e.getMessage());
         } catch (InterruptedException e) {
-            System.err.println("STREAMER: Replication thread interrupted for " + slaveAddress);
-            Thread.currentThread().interrupt();
+                System.err.println("STREAMER: Replication interrupted for " + slaveAddress);
+                Thread.currentThread().interrupt();
+
+        } catch (IOException e) {
+            System.err.println("STREAMER: HTTP stream error with " + slaveAddress + ": " + e.getMessage());
+
         } finally {
-            System.out.println("STREAMER: Closed replication stream for " + slaveAddress);
+            if (connection != null) {
+                try {
+                    final int code = connection.getResponseCode();
+                    System.out.println("STREAMER: Stream closed with response code: " + code + " for " + slaveAddress);
+                } catch (IOException e) {
+                    System.out.println("STREAMER: Could not retrieve response code during cleanup");
+                }
+                connection.disconnect();
+            }
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("ReplicationStreamer[slave=%s, lastSent=%d, logSize=%d]",
+                slaveAddress, lastSentIndex, transactionLog.size());
     }
 }

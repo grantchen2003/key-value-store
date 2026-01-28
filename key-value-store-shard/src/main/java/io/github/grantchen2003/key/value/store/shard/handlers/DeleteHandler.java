@@ -32,7 +32,7 @@ public class DeleteHandler implements HttpHandler {
 
         final String key = keyOpt.get();
 
-        final Optional<String> value = masterService.remove(key);
+        final Optional<String> value = masterService.delete(key);
 
         if (value.isEmpty()) {
             exchange.sendResponseHeaders(404, -1);

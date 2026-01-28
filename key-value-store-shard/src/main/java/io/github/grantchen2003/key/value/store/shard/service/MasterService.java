@@ -38,7 +38,7 @@ public class MasterService {
         }
     }
 
-    public Optional<String> remove(String key) {
+    public Optional<String> delete(String key) {
         lock.lock();
         try {
             transactionLog.appendDelete(key);

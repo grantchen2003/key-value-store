@@ -39,7 +39,7 @@ public class DeleteHandler implements HttpHandler {
 
         final String key = queryParams.get("key");
 
-        slaveService.remove(txOffset, key);
+        slaveService.delete(txOffset, key);
 
         exchange.sendResponseHeaders(200, -1);
     }

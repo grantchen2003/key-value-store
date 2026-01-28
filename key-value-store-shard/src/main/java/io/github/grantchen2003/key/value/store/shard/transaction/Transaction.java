@@ -1,6 +1,8 @@
 package io.github.grantchen2003.key.value.store.shard.transaction;
 
-public abstract class Transaction {
+import java.io.Serializable;
+
+public abstract class Transaction implements Serializable {
     public final long offset;
     public final String type;
 
