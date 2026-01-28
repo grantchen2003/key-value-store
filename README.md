@@ -5,7 +5,7 @@ A distributed key-value store supporting basic operations on string-typed keys a
 ## Features
 
 ### Supported Operations
-- **GET**: Retrieve the value associated with a key.  
+- **GET**: Retrieve the value associated with a key. Reads are eventually consistent by default but can be requested with strong consistency.
 - **PUT**: Store or update a value under a key.  
 - **DELETE**: Remove the value associated with a key.  
 
