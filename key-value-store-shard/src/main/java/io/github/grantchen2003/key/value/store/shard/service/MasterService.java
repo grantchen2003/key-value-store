@@ -8,6 +8,8 @@ import io.github.grantchen2003.key.value.store.shard.transaction.TransactionLog;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -15,6 +17,7 @@ public class MasterService {
     private final Store store;
     private final TransactionLog transactionLog;
 
+    private final Set<InetSocketAddress> slaveAddresses = ConcurrentHashMap.newKeySet();
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition txAvailable = lock.newCondition();
 
@@ -50,8 +53,13 @@ public class MasterService {
         }
     }
 
+    public Set<InetSocketAddress> getSlaveAddresses() {
+        return slaveAddresses;
+    }
+
     public void addSlave(InetSocketAddress slaveAddress) {
         System.out.println("MASTER: Registering new slave at " + slaveAddress);
+        slaveAddresses.add(slaveAddress);
         Thread.startVirtualThread(new ReplicationStreamer(
                 slaveAddress,
                 this.transactionLog,

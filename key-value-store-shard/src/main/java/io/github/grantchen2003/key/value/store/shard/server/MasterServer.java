@@ -6,7 +6,7 @@ import io.github.grantchen2003.key.value.store.shard.handlers.master.GetHandler;
 import io.github.grantchen2003.key.value.store.shard.handlers.common.LoggingHandler;
 import io.github.grantchen2003.key.value.store.shard.handlers.master.PutHandler;
 import io.github.grantchen2003.key.value.store.shard.handlers.master.TransactionLogHandler;
-import io.github.grantchen2003.key.value.store.shard.handlers.master.SlaveHandler;
+import io.github.grantchen2003.key.value.store.shard.handlers.master.SlavesHandler;
 import io.github.grantchen2003.key.value.store.shard.service.MasterService;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class MasterServer implements Server {
         server.createContext("/get", new LoggingHandler(new GetHandler(masterService)));
         server.createContext("/put", new LoggingHandler(new PutHandler(masterService)));
         server.createContext("/delete", new LoggingHandler(new DeleteHandler(masterService)));
-        server.createContext("/slaves", new LoggingHandler(new SlaveHandler(masterService)));
+        server.createContext("/slaves", new LoggingHandler(new SlavesHandler(masterService)));
         server.createContext("/transaction-log", new LoggingHandler(new TransactionLogHandler(masterService)));
 
         final int numCores = Runtime.getRuntime().availableProcessors();

@@ -10,10 +10,10 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-public class ReplicationHandler implements HttpHandler {
+public class ReplicateHandler implements HttpHandler {
     private final SlaveService slaveService;
 
-    public ReplicationHandler(SlaveService slaveService) {
+    public ReplicateHandler(SlaveService slaveService) {
         this.slaveService = slaveService;
     }
 
