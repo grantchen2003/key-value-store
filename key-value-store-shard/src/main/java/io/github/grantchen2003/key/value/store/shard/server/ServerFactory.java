@@ -15,25 +15,25 @@ import java.io.IOException;
 public class ServerFactory {
     private ServerFactory() {}
 
-    public static Server createServer(int port, ShardConfig config) throws IOException {
+    public static Server createServer(ShardConfig config) throws IOException {
         return switch (config.role()) {
-            case MASTER -> createMasterServer(port);
-            case SLAVE  -> createSlaveServer(port, config);
+            case MASTER -> createMasterServer(config);
+            case SLAVE  -> createSlaveServer(config);
         };
     }
 
-    private static Server createMasterServer(int port) throws IOException {
+    private static Server createMasterServer(ShardConfig config) throws IOException {
         final Store store = new InMemoryStore();
         final TransactionLog transactionLog = new InMemoryTransactionLog();
         final MasterService masterService = new MasterService(store, transactionLog);
-        return new MasterServer(port, masterService);
+        return new MasterServer(config.address().getPort(), masterService);
     }
 
-    private static Server createSlaveServer(int port, ShardConfig config) throws IOException {
+    private static Server createSlaveServer(ShardConfig config) throws IOException {
         final Store store = new InMemoryStore();
         final SlaveRegistrar slaveRegistrar = new SlaveRegistrar(config.address(), config.masterAddress());
         final SlaveSyncer slaveSyncer = new SlaveSyncer(store, config.masterAddress());
         final SlaveService slaveService = new SlaveService(store, slaveRegistrar, slaveSyncer);
-        return new SlaveServer(port, slaveService);
+        return new SlaveServer(config.address().getPort(), slaveService);
     }
 }
