@@ -34,7 +34,7 @@ public class ReplicationStreamer implements Runnable {
 
         final URL slaveUrl;
         try {
-            final URI slaveUri = new URI("http://" + slaveAddress.getHostString() + ":" + slaveAddress.getPort() + "/internal/replicate");
+            final URI slaveUri = new URI("http://" + slaveAddress.getHostString() + ":" + slaveAddress.getPort() + "/replicate");
             slaveUrl = slaveUri.toURL();
         } catch (MalformedURLException | URISyntaxException e) {
             System.err.println("STREAMER: Invalid slave address: " + e.getMessage());

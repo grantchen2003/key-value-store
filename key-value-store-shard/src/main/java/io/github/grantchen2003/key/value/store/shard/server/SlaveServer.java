@@ -2,9 +2,7 @@ package io.github.grantchen2003.key.value.store.shard.server;
 
 import com.sun.net.httpserver.HttpServer;
 import io.github.grantchen2003.key.value.store.shard.handlers.common.LoggingHandler;
-import io.github.grantchen2003.key.value.store.shard.handlers.internal.DeleteHandler;
 import io.github.grantchen2003.key.value.store.shard.handlers.internal.GetHandler;
-import io.github.grantchen2003.key.value.store.shard.handlers.internal.PutHandler;
 import io.github.grantchen2003.key.value.store.shard.handlers.internal.ReplicationHandler;
 import io.github.grantchen2003.key.value.store.shard.service.SlaveService;
 
@@ -18,10 +16,8 @@ public class SlaveServer implements Server {
 
     public SlaveServer(int port, SlaveService slaveService) throws IOException {
         this.server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/internal/get", new LoggingHandler(new GetHandler(slaveService)));
-        server.createContext("/internal/put", new LoggingHandler(new PutHandler(slaveService)));
-        server.createContext("/internal/delete", new LoggingHandler(new DeleteHandler(slaveService)));
-        server.createContext("/internal/replicate", new LoggingHandler(new ReplicationHandler(slaveService)));
+        server.createContext("/get", new LoggingHandler(new GetHandler(slaveService)));
+        server.createContext("/replicate", new LoggingHandler(new ReplicationHandler(slaveService)));
         this.slaveService = slaveService;
 
         final int numCores = Runtime.getRuntime().availableProcessors();
