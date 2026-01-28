@@ -52,17 +52,12 @@ public class MasterService {
 
     public void addSlave(InetSocketAddress slaveAddress) {
         System.out.println("MASTER: Registering new slave at " + slaveAddress);
-
-        final ReplicationStreamer streamer = new ReplicationStreamer(
+        Thread.startVirtualThread(new ReplicationStreamer(
                 slaveAddress,
                 this.transactionLog,
                 this.lock,
                 this.txAvailable
-        );
-
-        final Thread t = new Thread(streamer, "ReplStreamer-" + slaveAddress.getHostString());
-        t.setDaemon(true);
-        t.start();
+        ));
     }
 
     public List<Transaction> getTransactionsStartingFrom(long startOffset) {
