@@ -1,12 +1,12 @@
 package io.github.grantchen2003.key.value.store.shard.server;
 
 import com.sun.net.httpserver.HttpServer;
-import io.github.grantchen2003.key.value.store.shard.handlers.DeleteHandler;
-import io.github.grantchen2003.key.value.store.shard.handlers.GetHandler;
+import io.github.grantchen2003.key.value.store.shard.handlers.master.DeleteHandler;
+import io.github.grantchen2003.key.value.store.shard.handlers.master.GetHandler;
 import io.github.grantchen2003.key.value.store.shard.handlers.common.LoggingHandler;
-import io.github.grantchen2003.key.value.store.shard.handlers.PutHandler;
-import io.github.grantchen2003.key.value.store.shard.handlers.TransactionLogHandler;
-import io.github.grantchen2003.key.value.store.shard.handlers.SlaveHandler;
+import io.github.grantchen2003.key.value.store.shard.handlers.master.PutHandler;
+import io.github.grantchen2003.key.value.store.shard.handlers.master.TransactionLogHandler;
+import io.github.grantchen2003.key.value.store.shard.handlers.master.SlaveHandler;
 import io.github.grantchen2003.key.value.store.shard.service.MasterService;
 
 import java.io.IOException;

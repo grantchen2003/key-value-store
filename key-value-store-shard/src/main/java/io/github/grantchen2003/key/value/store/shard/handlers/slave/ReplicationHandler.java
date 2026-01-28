@@ -1,4 +1,4 @@
-package io.github.grantchen2003.key.value.store.shard.handlers.internal;
+package io.github.grantchen2003.key.value.store.shard.handlers.slave;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;

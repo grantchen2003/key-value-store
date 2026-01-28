@@ -2,8 +2,8 @@ package io.github.grantchen2003.key.value.store.shard.server;
 
 import com.sun.net.httpserver.HttpServer;
 import io.github.grantchen2003.key.value.store.shard.handlers.common.LoggingHandler;
-import io.github.grantchen2003.key.value.store.shard.handlers.internal.GetHandler;
-import io.github.grantchen2003.key.value.store.shard.handlers.internal.ReplicationHandler;
+import io.github.grantchen2003.key.value.store.shard.handlers.slave.GetHandler;
+import io.github.grantchen2003.key.value.store.shard.handlers.slave.ReplicationHandler;
 import io.github.grantchen2003.key.value.store.shard.service.SlaveService;
 
 import java.io.IOException;
