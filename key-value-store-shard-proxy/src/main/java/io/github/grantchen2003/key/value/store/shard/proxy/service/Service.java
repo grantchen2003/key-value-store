@@ -10,7 +10,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -41,7 +41,7 @@ public class Service {
 
         try {
             final HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-            return new GetResult(response.statusCode(), Arrays.toString(response.body()));
+            return new GetResult(response.statusCode(), new String(response.body(), StandardCharsets.UTF_8));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return new GetResult(500, null);

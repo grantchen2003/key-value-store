@@ -48,7 +48,7 @@ public class SlaveRegistry {
 
         HttpURLConnection conn = null;
         try {
-            final URI uri = new URI("http://" + masterAddress.getHostString() + ":" + masterAddress.getPort() + "/internal/slaves");
+            final URI uri = new URI("http://" + masterAddress.getHostString() + ":" + masterAddress.getPort() + "/slaves");
             conn = (HttpURLConnection) uri.toURL().openConnection();
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(2000);
@@ -65,7 +65,7 @@ public class SlaveRegistry {
                 final List<InetSocketAddress> newSlaveAddresses = parseSlaveAddresses(rawJson);
 
                 this.slaveAddresses = List.copyOf(newSlaveAddresses);
-                System.out.println("REGISTRY: Successfully updated slave list. Count: " + this.slaveAddresses.size());
+                System.out.println("REGISTRY: Successfully updated slave list: " + this.slaveAddresses);
             }
 
         } catch (URISyntaxException e) {

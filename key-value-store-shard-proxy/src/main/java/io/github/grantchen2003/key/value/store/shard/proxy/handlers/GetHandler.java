@@ -35,7 +35,7 @@ public class GetHandler implements HttpHandler {
 
         final GetResult getResult = service.get(key, isStronglyConsistent);
 
-        exchange.sendResponseHeaders(200, getResult.value().getBytes().length);
+        exchange.sendResponseHeaders(getResult.statusCode(), getResult.value().getBytes().length);
         try (final OutputStream os = exchange.getResponseBody()) {
             os.write(getResult.value().getBytes());
         }
