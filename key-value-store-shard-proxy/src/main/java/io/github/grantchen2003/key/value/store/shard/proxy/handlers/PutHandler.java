@@ -16,6 +16,7 @@ public class PutHandler implements HttpHandler {
     public PutHandler(Service service) {
         this.service = service;
     }
+
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         if (!exchange.getRequestMethod().equalsIgnoreCase("POST")) {
