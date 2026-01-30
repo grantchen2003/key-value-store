@@ -11,7 +11,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Service {
@@ -36,17 +38,18 @@ public class Service {
 
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://" + NetworkUtils.toHostPort(readServer) + "/get?key=" + key))
+                .timeout(Duration.ofSeconds(3))
                 .GET()
                 .build();
 
         try {
             final HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-            return new GetResult(response.statusCode(), new String(response.body(), StandardCharsets.UTF_8));
+            return new GetResult(response.statusCode(), Optional.of(new String(response.body(), StandardCharsets.UTF_8)));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return new GetResult(500, null);
+            return new GetResult(500, Optional.empty());
         } catch (IOException e) {
-            return new GetResult(500, null);
+            return new GetResult(500, Optional.empty());
         }
     }
 

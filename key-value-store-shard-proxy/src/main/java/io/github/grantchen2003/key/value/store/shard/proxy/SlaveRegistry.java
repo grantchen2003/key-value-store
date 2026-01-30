@@ -24,7 +24,7 @@ public class SlaveRegistry {
 
     public SlaveRegistry(InetSocketAddress masterAddress) {
         this.masterAddress = masterAddress;
-        startPolling();
+//        startPolling();
     }
 
     public List<InetSocketAddress> getSlaveAddresses() {
