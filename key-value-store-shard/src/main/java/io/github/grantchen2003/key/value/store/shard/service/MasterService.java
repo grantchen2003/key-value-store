@@ -58,10 +58,18 @@ public class MasterService {
     }
 
     public void addSlave(InetSocketAddress slaveAddress) {
+        if (!slaveAddresses.add(slaveAddress)) {
+            return;
+        }
+
         System.out.println("MASTER: Registering new slave at " + slaveAddress);
-        slaveAddresses.add(slaveAddress);
+
         Thread.startVirtualThread(new ReplicationStreamer(
                 slaveAddress,
+                deadSlaveAddress -> {
+                    slaveAddresses.remove(deadSlaveAddress);
+                    System.out.println("MASTER: Removed dead slave " + deadSlaveAddress);
+                },
                 this.transactionLog,
                 this.lock,
                 this.txAvailable
