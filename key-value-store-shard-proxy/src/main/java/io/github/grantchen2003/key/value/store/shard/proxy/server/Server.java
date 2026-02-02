@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpServer;
 import io.github.grantchen2003.key.value.store.shard.proxy.handlers.GetHandler;
 import io.github.grantchen2003.key.value.store.shard.proxy.handlers.LoggingHandler;
 import io.github.grantchen2003.key.value.store.shard.proxy.handlers.PutHandler;
+import io.github.grantchen2003.key.value.store.shard.proxy.handlers.SlaveHandler;
 import io.github.grantchen2003.key.value.store.shard.proxy.service.Service;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ public class Server {
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/get", new LoggingHandler(new GetHandler(service)));
         server.createContext("/put", new LoggingHandler(new PutHandler(service)));
+        server.createContext("/internal/slave", new LoggingHandler(new SlaveHandler(service)));
 
         final int numCores = Runtime.getRuntime().availableProcessors();
         server.setExecutor(Executors.newFixedThreadPool(numCores * 2));

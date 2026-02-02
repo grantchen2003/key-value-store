@@ -11,8 +11,10 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.time.Duration;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -20,15 +22,30 @@ import java.util.stream.Collectors;
 
 public class SlaveRegistry {
     private final InetSocketAddress masterAddress;
-    private volatile List<InetSocketAddress> slaveAddresses = List.of();
+    private Set<InetSocketAddress> slaveAddresses = ConcurrentHashMap.newKeySet();
+    private final ExpiringSet<InetSocketAddress> blackListedSlaveAddresses = new ExpiringSet<>();
 
     public SlaveRegistry(InetSocketAddress masterAddress) {
         this.masterAddress = masterAddress;
-//        startPolling();
+        startPolling();
     }
 
-    public List<InetSocketAddress> getSlaveAddresses() {
-        return slaveAddresses;
+    public List<InetSocketAddress> getAvailableSlaveAddresses() {
+        return slaveAddresses.stream()
+                .filter(address -> !blackListedSlaveAddresses.contains(address))
+                .toList();
+    }
+
+    public void remove(InetSocketAddress slaveAddress) {
+        slaveAddresses.remove(slaveAddress);
+    }
+
+    public void add(InetSocketAddress slaveAddress) {
+        slaveAddresses.add(slaveAddress);
+    }
+
+    public void blackList(InetSocketAddress slaveAddress, Duration duration) {
+        blackListedSlaveAddresses.put(slaveAddress, duration);
     }
 
     private void startPolling() {
@@ -36,14 +53,14 @@ public class SlaveRegistry {
 
         scheduler.scheduleAtFixedRate(() -> {
             try {
-                pollMaster();
+                syncSlavesWithMaster();
             } catch (Exception e) {
                 System.err.println("REGISTRY: Failed to update slave list: " + e.getMessage());
             }
-        }, 0, 5, TimeUnit.SECONDS);
+        }, 0, 5, TimeUnit.MINUTES);
     }
 
-    private void pollMaster() {
+    private void syncSlavesWithMaster() {
         System.out.println("REGISTRY: Polling master at " + masterAddress);
 
         HttpURLConnection conn = null;
@@ -62,9 +79,7 @@ public class SlaveRegistry {
 
             try (final BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
                 final String rawJson = reader.lines().collect(Collectors.joining());
-                final List<InetSocketAddress> newSlaveAddresses = parseSlaveAddresses(rawJson);
-
-                this.slaveAddresses = List.copyOf(newSlaveAddresses);
+                this.slaveAddresses = parseSlaveAddresses(rawJson);
                 System.out.println("REGISTRY: Successfully updated slave list: " + this.slaveAddresses);
             }
 
@@ -81,11 +96,11 @@ public class SlaveRegistry {
         }
     }
 
-    private static List<InetSocketAddress> parseSlaveAddresses(String rawJson) {
+    private static Set<InetSocketAddress> parseSlaveAddresses(String rawJson) {
         final JSONObject response = new JSONObject(rawJson);
         final JSONArray slavesArray = response.getJSONArray("slaves");
 
-        final List<InetSocketAddress> newSlaveAddresses = new ArrayList<>();
+        final Set<InetSocketAddress> newSlaveAddresses = ConcurrentHashMap.newKeySet();
         for (int i = 0; i < slavesArray.length(); i++) {
             final String hostPort = slavesArray.getString(i);
             final String[] parts = hostPort.split(":");

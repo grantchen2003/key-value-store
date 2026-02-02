@@ -21,6 +21,8 @@ public class Service {
     private final InetSocketAddress masterAddress;
     private final SlaveRegistry slaveRegistry;
 
+    private final Duration SLAVE_BLACK_LIST_DURATION = Duration.ofMinutes(5);
+
     public Service(InetSocketAddress masterAddress, SlaveRegistry slaveRegistry) {
         this.masterAddress = masterAddress;
         this.slaveRegistry = slaveRegistry;
@@ -28,7 +30,7 @@ public class Service {
 
     public GetResult get(String key, boolean isStronglyConsistent) {
         final InetSocketAddress readServer;
-        final List<InetSocketAddress> slaveAddresses = slaveRegistry.getSlaveAddresses();
+        final List<InetSocketAddress> slaveAddresses = slaveRegistry.getAvailableSlaveAddresses();
         if (isStronglyConsistent || slaveAddresses.isEmpty()) {
             readServer = masterAddress;
         } else {
@@ -49,6 +51,7 @@ public class Service {
             Thread.currentThread().interrupt();
             return new GetResult(500, Optional.empty());
         } catch (IOException e) {
+            slaveRegistry.blackList(readServer, SLAVE_BLACK_LIST_DURATION);
             return new GetResult(500, Optional.empty());
         }
     }
@@ -73,5 +76,13 @@ public class Service {
         } catch (InterruptedException | IOException e) {
             return 500;
         }
+    }
+
+    public void addSlave(InetSocketAddress slaveAddress) {
+        slaveRegistry.add(slaveAddress);
+    }
+
+    public void removeSlave(InetSocketAddress slaveAddress) {
+        slaveRegistry.remove(slaveAddress);
     }
 }
