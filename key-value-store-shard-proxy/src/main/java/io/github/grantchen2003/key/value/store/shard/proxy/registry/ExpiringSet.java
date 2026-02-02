@@ -1,4 +1,4 @@
-package io.github.grantchen2003.key.value.store.shard.proxy;
+package io.github.grantchen2003.key.value.store.shard.proxy.registry;
 
 import java.time.Duration;
 import java.util.Map;

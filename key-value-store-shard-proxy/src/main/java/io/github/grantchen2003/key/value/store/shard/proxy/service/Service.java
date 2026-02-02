@@ -1,6 +1,6 @@
 package io.github.grantchen2003.key.value.store.shard.proxy.service;
 
-import io.github.grantchen2003.key.value.store.shard.proxy.SlaveRegistry;
+import io.github.grantchen2003.key.value.store.shard.proxy.registry.SlaveRegistry;
 import io.github.grantchen2003.key.value.store.shard.proxy.utils.NetworkUtils;
 import org.json.JSONObject;
 

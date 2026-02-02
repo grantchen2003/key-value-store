@@ -2,6 +2,7 @@ package io.github.grantchen2003.key.value.store.shard.proxy;
 
 import io.github.grantchen2003.key.value.store.shard.proxy.config.ConfigParser;
 import io.github.grantchen2003.key.value.store.shard.proxy.config.ShardProxyConfig;
+import io.github.grantchen2003.key.value.store.shard.proxy.registry.SlaveRegistry;
 import io.github.grantchen2003.key.value.store.shard.proxy.server.Server;
 import io.github.grantchen2003.key.value.store.shard.proxy.service.Service;
 

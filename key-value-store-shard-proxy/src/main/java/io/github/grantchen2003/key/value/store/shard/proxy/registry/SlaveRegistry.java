@@ -1,4 +1,4 @@
-package io.github.grantchen2003.key.value.store.shard.proxy;
+package io.github.grantchen2003.key.value.store.shard.proxy.registry;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
